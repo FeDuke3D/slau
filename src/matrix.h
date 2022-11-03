@@ -10,6 +10,8 @@ class Matrix {
   Matrix(Matrix&& other);
   ~Matrix();
 
+  void ReadFile(const std::string& file_name);
+
   Matrix& operator=(const Matrix& other);
   Matrix& operator=(Matrix&& other);
 
@@ -20,8 +22,12 @@ class Matrix {
   unsigned get_rows();
   unsigned get_cols();
 
+  double Determinant();
+
  private:
   std::vector<std::vector<double>> m_data;
+  double MinorElem(unsigned row, unsigned col);
+  Matrix ReduxMx(unsigned row, unsigned col);
 };
 
 #endif  // SRC_MATRIX_H_

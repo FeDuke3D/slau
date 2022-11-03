@@ -12,6 +12,9 @@ class Slau : private Matrix {
   std::vector<double> get_solution();
 
  private:
+  const double kEps{1e-8};
+
+  bool CheckDet();
   void SubtractRow(unsigned what, unsigned from, double coef);
   void MultRow(unsigned row, double coef);
   void ExpressVar(unsigned index);

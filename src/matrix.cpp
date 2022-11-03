@@ -1,6 +1,8 @@
 #include "matrix.h"
 
 #include <stdexcept>
+#include <cmath>
+#include <fstream>
 
 Matrix::Matrix() {}
 
@@ -9,6 +11,18 @@ Matrix::Matrix(const Matrix& other) { *this = other; }
 Matrix::Matrix(Matrix&& other) { *this = std::move(other); }
 
 Matrix::~Matrix() {}
+
+void ReadFile(const std::string& file_name) {
+  std::ifstream stream(file_name);
+  if (!stream) throw std::invalid_argument("cant open file");
+
+  while (!stream.eof()) {
+    // do something
+  }
+
+  stream.close();
+  if (!stream.good()) throw std::invalid_argument("error during file closing");
+}
 
 Matrix& Matrix::operator=(const Matrix& other) {
   if (this != &other) m_data = other.m_data;
@@ -48,3 +62,34 @@ std::vector<double>& Matrix::operator[](unsigned row) {
 unsigned Matrix::get_rows() { return m_data.size(); }
 
 unsigned Matrix::get_cols() { return (get_rows()) ? m_data[0].size() : 0; }
+
+double Matrix::Determinant() {
+  if (get_cols() != get_rows()) throw std::invalid_argument("trying to calculate determinant for a non square matrix");
+  if (get_rows() == 0) throw std::invalid_argument("trying to calculate determinant for an incorrect matrix");
+
+  double res{};
+  if (get_rows() == 1) {
+    res = m_data[0][0];
+  } else {
+    for (int i{}; i < get_cols(); i++) {
+      res += pow(-1, i) * m_data[0][i] * MinorElem(0, i);
+    }
+  }
+}
+
+double Matrix::MinorElem(unsigned row, unsigned col) {
+  return ReduxMx(row, col).Determinant();
+}
+
+Matrix Matrix::ReduxMx(unsigned row, unsigned col) {
+  Matrix res;
+  res.Resize(get_rows() - 1, get_cols() - 1);
+  for (int i{}, isrc{}; i < res.get_rows(); i++, isrc++) {
+    if (isrc == row) isrc++;
+    for (int j{}, jsrc{}; j < res.get_cols(); j++, jsrc++) {
+      if (jsrc == col) jsrc++;
+      res[i][j] = m_data[isrc][jsrc];
+    }
+  }
+  return res;
+}

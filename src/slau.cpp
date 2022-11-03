@@ -1,11 +1,12 @@
 #include "slau.h"
 
 #include <stdexcept>
+#include <cmath>
 
 Slau::Slau() { Resize(1, 2); }
 
 explicit Slau::Slau(unsigned num) {
-  if (num == 0) throw std::out_of_range("slau needs at least  variable");
+  if (num == 0) throw std::out_of_range("slau needs at least 1 variable");
 
   Resize(num, num + 1);
 }
@@ -14,11 +15,18 @@ Slau::~Slau() {}
 
 std::vector<double> Slau::get_solution() {
   std::vector<double> res{};
-  unsigned last{get_cols() - 1};
-
-  ExpressAll();
-  for (unsigned i{}; i < get_rows(); i++) res.push_back(-At(i, last));
+  if (CheckDet()) {
+    unsigned last{get_cols() - 1};
+    ExpressAll();
+    for (unsigned i{}; i < get_rows(); i++) res.push_back(-At(i, last));
+  }
   return res;
+}
+
+bool Slau::CheckDet() {
+  Matrix tmp{*this};
+  tmp.Resize(get_rows(), get_rows());
+  return tmp.Determinant();
 }
 
 void Slau::SubtractRow(unsigned what, unsigned from, double coef) {
@@ -35,10 +43,33 @@ void Slau::MultRow(unsigned row, double coef) {
 }
 
 void Slau::ExpressVar(unsigned index) {
-  MultRow(index, 1 / At(index, index));
+  bool flag{};
+  if (fabs(At(index, index)) < kEps) {
+    flag = true;
+    for (unsigned i{}; i < get_rows(); i++) {
+      if (fabs(At(i, index)) > kEps) {
+        SubtractRow(i, index, 2);
+        flag = false;
+        break;
+      }
+    }
+  }
 
-  for (unsigned i{}; i < get_rows(); i++) {
-    if (i != index) SubtractRow(index, i, At(i, index));
+  if (flag) {
+    for (unsigned i{}; i < get_cols(); i++) {
+      if (i == index) {
+        At(index, i) = 1;
+      } else if (i == get_cols() - 1) {
+        At(index, i) = NAN;
+      } else {
+        At(index, i) = 0;
+      }
+    }
+  } else {
+    MultRow(index, 1 / At(index, index));
+    for (unsigned i{}; i < get_rows(); i++) {
+      if (i != index) SubtractRow(index, i, At(i, index));
+    }
   }
 }
 
