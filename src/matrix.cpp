@@ -1,8 +1,10 @@
 #include "matrix.h"
 
-#include <stdexcept>
+#include <algorithm>
 #include <cmath>
 #include <fstream>
+#include <iostream>
+#include <stdexcept>
 
 Matrix::Matrix() {}
 
@@ -12,16 +14,27 @@ Matrix::Matrix(Matrix&& other) { *this = std::move(other); }
 
 Matrix::~Matrix() {}
 
-void ReadFile(const std::string& file_name) {
+void Matrix::ReadFile(const std::string& file_name) {
+  m_data.clear();
   std::ifstream stream(file_name);
   if (!stream) throw std::invalid_argument("cant open file");
 
   while (!stream.eof()) {
-    // do something
+    std::vector<std::string> line;
+    while (stream.peek() != '\n' && !stream.eof()) {
+      std::string word;
+      stream >> word;
+      line.push_back(word);
+    }
+    if (stream.peek() == '\n') stream.get();
+    if (line.size() > 0) {
+      Resize(get_rows() + 1, std::max((unsigned)line.size(), get_cols()));
+      unsigned cur_row{get_rows()};
+      for (unsigned i{}; i < get_cols(); i++)
+        At(cur_row - 1, i) = std::stod(line[i]);
+    }
   }
-
   stream.close();
-  if (!stream.good()) throw std::invalid_argument("error during file closing");
 }
 
 Matrix& Matrix::operator=(const Matrix& other) {
@@ -64,8 +77,12 @@ unsigned Matrix::get_rows() { return m_data.size(); }
 unsigned Matrix::get_cols() { return (get_rows()) ? m_data[0].size() : 0; }
 
 double Matrix::Determinant() {
-  if (get_cols() != get_rows()) throw std::invalid_argument("trying to calculate determinant for a non square matrix");
-  if (get_rows() == 0) throw std::invalid_argument("trying to calculate determinant for an incorrect matrix");
+  if (get_cols() != get_rows())
+    throw std::invalid_argument(
+        "trying to calculate determinant for a non square matrix");
+  if (get_rows() == 0)
+    throw std::invalid_argument(
+        "trying to calculate determinant for an incorrect matrix");
 
   double res{};
   if (get_rows() == 1) {
@@ -75,6 +92,7 @@ double Matrix::Determinant() {
       res += pow(-1, i) * m_data[0][i] * MinorElem(0, i);
     }
   }
+  return res;
 }
 
 double Matrix::MinorElem(unsigned row, unsigned col) {

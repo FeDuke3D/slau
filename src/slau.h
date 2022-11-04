@@ -9,11 +9,13 @@ class Slau : private Matrix {
   explicit Slau(unsigned num);
   ~Slau();
 
+  void ReadFile(const std::string& file_name);
   std::vector<double> get_solution();
 
  private:
   const double kEps{1e-8};
 
+  bool CheckSize();
   bool CheckDet();
   void SubtractRow(unsigned what, unsigned from, double coef);
   void MultRow(unsigned row, double coef);

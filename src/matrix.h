@@ -2,6 +2,7 @@
 #define SRC_MATRIX_H_
 
 #include <vector>
+#include <string>
 
 class Matrix {
  public:

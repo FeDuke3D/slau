@@ -3,15 +3,20 @@
 #include <stdexcept>
 #include <cmath>
 
-Slau::Slau() { Resize(1, 2); }
+Slau::Slau() : Matrix() { Resize(1, 2); }
 
-explicit Slau::Slau(unsigned num) {
+Slau::Slau(unsigned num) : Matrix() {
   if (num == 0) throw std::out_of_range("slau needs at least 1 variable");
 
   Resize(num, num + 1);
 }
 
 Slau::~Slau() {}
+
+void Slau::ReadFile(const std::string& file_name) {
+  Matrix::ReadFile(file_name);
+  if (!CheckSize()) throw std::invalid_argument("incorrect size");
+}
 
 std::vector<double> Slau::get_solution() {
   std::vector<double> res{};
@@ -21,6 +26,10 @@ std::vector<double> Slau::get_solution() {
     for (unsigned i{}; i < get_rows(); i++) res.push_back(-At(i, last));
   }
   return res;
+}
+
+bool Slau::CheckSize() {
+  return (get_cols() == get_rows() + 1);
 }
 
 bool Slau::CheckDet() {
