@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
-#include <iostream>
 #include <stdexcept>
 
 Matrix::Matrix() {}
@@ -88,7 +87,7 @@ double Matrix::Determinant() {
   if (get_rows() == 1) {
     res = m_data[0][0];
   } else {
-    for (int i{}; i < get_cols(); i++) {
+    for (unsigned i{}; i < get_cols(); i++) {
       res += pow(-1, i) * m_data[0][i] * MinorElem(0, i);
     }
   }
@@ -102,9 +101,9 @@ double Matrix::MinorElem(unsigned row, unsigned col) {
 Matrix Matrix::ReduxMx(unsigned row, unsigned col) {
   Matrix res;
   res.Resize(get_rows() - 1, get_cols() - 1);
-  for (int i{}, isrc{}; i < res.get_rows(); i++, isrc++) {
+  for (unsigned i{}, isrc{}; i < res.get_rows(); i++, isrc++) {
     if (isrc == row) isrc++;
-    for (int j{}, jsrc{}; j < res.get_cols(); j++, jsrc++) {
+    for (unsigned j{}, jsrc{}; j < res.get_cols(); j++, jsrc++) {
       if (jsrc == col) jsrc++;
       res[i][j] = m_data[isrc][jsrc];
     }

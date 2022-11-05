@@ -1,8 +1,8 @@
 #ifndef SRC_MATRIX_H_
 #define SRC_MATRIX_H_
 
-#include <vector>
 #include <string>
+#include <vector>
 
 class Matrix {
  public:

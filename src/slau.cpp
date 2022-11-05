@@ -1,7 +1,8 @@
 #include "slau.h"
 
-#include <stdexcept>
+#include <algorithm>
 #include <cmath>
+#include <stdexcept>
 
 Slau::Slau() : Matrix() { Resize(1, 2); }
 
@@ -12,6 +13,16 @@ Slau::Slau(unsigned num) : Matrix() {
 }
 
 Slau::~Slau() {}
+
+Slau& Slau::operator=(const Slau& other) {
+  Matrix::operator=(other);
+  return *this;
+}
+
+Slau& Slau::operator=(Slau&& other) {
+  Matrix::operator=(std::move(other));
+  return *this;
+}
 
 void Slau::ReadFile(const std::string& file_name) {
   Matrix::ReadFile(file_name);
@@ -24,13 +35,13 @@ std::vector<double> Slau::get_solution() {
     unsigned last{get_cols() - 1};
     ExpressAll();
     for (unsigned i{}; i < get_rows(); i++) res.push_back(-At(i, last));
+  } else {
+    throw std::invalid_argument("system is incosistent");
   }
   return res;
 }
 
-bool Slau::CheckSize() {
-  return (get_cols() == get_rows() + 1);
-}
+bool Slau::CheckSize() { return (get_cols() == get_rows() + 1); }
 
 bool Slau::CheckDet() {
   Matrix tmp{*this};
@@ -48,7 +59,9 @@ void Slau::SubtractRow(unsigned what, unsigned from, double coef) {
 void Slau::MultRow(unsigned row, double coef) {
   if (row >= get_rows()) throw std::out_of_range("index out of range");
 
-  for (auto& each : operator[](row)) each *= coef;
+  std::transform(operator[](row).begin(), operator[](row).end(),
+                                          operator[](row).begin(),
+                 [coef](double a) { return a * coef; });
 }
 
 void Slau::ExpressVar(unsigned index) {
@@ -83,5 +96,5 @@ void Slau::ExpressVar(unsigned index) {
 }
 
 void Slau::ExpressAll() {
-  for (int i{}; i < get_rows(); i++) ExpressVar(i);
+  for (unsigned i{}; i < get_rows(); i++) ExpressVar(i);
 }

@@ -7,7 +7,12 @@ class Slau : private Matrix {
  public:
   Slau();
   explicit Slau(unsigned num);
+  Slau(const Slau& other) : Matrix(other) {}
+  Slau(Slau&& other) : Matrix(std::move(other)) {}
   ~Slau();
+
+  Slau& operator=(const Slau& other);
+  Slau& operator=(Slau&& other);
 
   void ReadFile(const std::string& file_name);
   std::vector<double> get_solution();
